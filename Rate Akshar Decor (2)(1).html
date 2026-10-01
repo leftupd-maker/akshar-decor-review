@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rate Akshar Decor</title>
+<style>
+:root{--bg:#faf6f0;--card:#fff;--text:#2a2118;--muted:#7a6c5d;--accent:#b8732e;--line:#eadfce;--chip:#fbf3e6;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17130e;--card:#221c14;--text:#f3ebdf;--muted:#b3a593;--accent:#e09a4f;--line:#3a3025;--chip:#2c241a}}
+:root[data-theme="dark"]{--bg:#17130e;--card:#221c14;--text:#f3ebdf;--muted:#b3a593;--accent:#e09a4f;--line:#3a3025;--chip:#2c241a}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;justify-content:center;padding:20px 14px}
+.card{width:100%;max-width:440px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px 18px;text-align:center}
+h1{font-size:22px;margin:0 0 4px}
+.sub{color:var(--muted);font-size:14px;margin:0 0 18px}
+.stars{display:flex;justify-content:center;gap:6px;margin-bottom:6px}
+.star{font-size:42px;line-height:1;background:none;border:0;cursor:pointer;color:#cfc3b2;padding:2px}
+.star.on{color:#f5a623}
+.step{display:none;margin-top:16px;text-align:left}
+.step.show{display:block}
+.label{font-size:13px;color:var(--muted);margin:0 0 8px;text-align:center}
+.chips{display:flex;flex-direction:column;gap:8px}
+.chip{background:var(--chip);border:1px solid var(--line);color:var(--text);border-radius:12px;padding:12px;font-size:14px;text-align:left;cursor:pointer;font-family:inherit}
+.chip.sel{border-color:var(--accent);outline:2px solid var(--accent)}
+textarea{width:100%;min-height:90px;margin-top:10px;border:1px solid var(--line);border-radius:12px;padding:10px;font-size:14px;font-family:inherit;background:var(--bg);color:var(--text)}
+.btn{display:block;width:100%;border:0;border-radius:12px;padding:14px;font-size:16px;font-weight:600;cursor:pointer;margin-top:12px;font-family:inherit}
+.primary{background:var(--accent);color:#fff}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.hint{font-size:13px;color:var(--muted);text-align:center;margin-top:10px;min-height:18px}
+.ok{color:#2e8b57;font-weight:600}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Rate Akshar Decor</h1>
+  <p class="sub">Thank you for visiting us! Tap the stars to share your experience ✨</p>
+
+  <div class="stars" id="stars"></div>
+
+  <div class="step" id="step2">
+    <p class="label">Tap a line you like (or write your own)</p>
+    <div class="chips" id="chips"></div>
+    <button class="chip" id="shuffleBtn" style="text-align:center;margin-top:10px">&#128260; Suggest another review</button>
+    <textarea id="text" placeholder="Your review... (you can edit it)"></textarea>
+    <button class="btn primary" id="openBtn">Continue to Google Review &#10148;</button>
+    <div class="hint" id="hint">Your review is copied automatically. In Google: tap 5 stars, paste, then Post.</div>
+  </div>
+</div>
+
+<script>
+const GOOGLE_REVIEW_LINK = "https://search.google.com/local/writereview?placeid=ChIJBWo9jDtP4DsRYOqjk28X5hg&source=g.page.m.nr._&laa=nmx-review-solicitation-recommendation-card";
+
+const SUGGESTIONS = [
+  "Great collection and very helpful staff. Good quality interior products at fair prices.",
+  "Excellent variety of decor items. The team guided us well and the service was friendly.",
+  "Loved the designs and quality at Akshar Decor. Highly recommended for home interiors!",
+  "Very good showroom experience. Wide range, polite staff and quick assistance."
+];
+
+const starsEl = document.getElementById('stars');
+const step2 = document.getElementById('step2');
+const chipsEl = document.getElementById('chips');
+const text = document.getElementById('text');
+const shuffleBtn = document.getElementById('shuffleBtn');
+const openBtn = document.getElementById('openBtn');
+const hint = document.getElementById('hint');
+let rating = 0;
+const A=["Great experience at Akshar Decor.","Visited Akshar Decor recently and loved it.","Really happy with Akshar Decor.","Akshar Decor is a wonderful place for home decor.","Had a lovely visit to Akshar Decor."];
+const B=["The collection is wide and the quality is very good.","Lots of beautiful designs to choose from.","Products are stylish and well made.","Found exactly what we wanted for our home.","The variety of decor and interior items is impressive."];
+const C=["The staff was friendly and helpful.","The team guided us patiently and politely.","Service was quick and courteous.","Prices are fair for the quality.","Very smooth and comfortable shopping experience."];
+const D=["Highly recommended!","Will visit again.","Definitely worth a visit.","Recommended to everyone.","Thank you, team!"];
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+function generate(){ text.value=[pick(A),pick(B),pick(C),pick(D)].join(' '); [...chipsEl.children].forEach(x=>x.classList.remove('sel')); }
+shuffleBtn.onclick=generate;
+
+
+for (let i = 1; i <= 5; i++) {
+  const b = document.createElement('button');
+  b.className = 'star'; b.textContent = '★'; b.setAttribute('aria-label', i + ' star');
+  b.onclick = () => setRating(i);
+  starsEl.appendChild(b);
+}
+
+function setRating(n) {
+  rating = n;
+  [...starsEl.children].forEach((s, i) => s.classList.toggle('on', i < n));
+  step2.classList.add('show');
+  if (n >= 4 && !text.value) generate();
+  if (n < 4) { text.value=''; text.placeholder='Please tell us what we can improve...'; }
+}
+
+SUGGESTIONS.forEach(t => {
+  const c = document.createElement('button');
+  c.className = 'chip'; c.textContent = t;
+  c.onclick = () => {
+    [...chipsEl.children].forEach(x => x.classList.remove('sel'));
+    c.classList.add('sel'); text.value = t;
+  };
+  chipsEl.appendChild(c);
+});
+
+async function copyText(str) {
+  try { await navigator.clipboard.writeText(str); return true; } catch (e) {}
+  try { text.focus(); text.select(); return document.execCommand('copy'); } catch (e) { return false; }
+}
+
+openBtn.onclick = async () => {
+  const t = text.value.trim();
+  if (!t) { hint.textContent = 'Please pick or write a review first.'; return; }
+  const w = window.open(GOOGLE_REVIEW_LINK, '_blank', 'noopener');
+  await copyText(t);
+  hint.innerHTML = '<span class="ok">✔ Review copied.</span> Paste it in Google and tap Post.';
+  if (!w) window.location.href = GOOGLE_REVIEW_LINK;
+};
+</script>
+</body>
+</html>
